@@ -138,11 +138,16 @@ function updateProcessModal() {
 
   const pct = stats.total > 0 ? Math.round(((stats.sent + stats.error) / stats.total) * 100) : 0;
   const pctEl = document.getElementById('processPct');
+  const ringFill = document.getElementById('fabRingFill');
+  const circumference = 150.796;
+
   if (stats.total > 0) {
     pctEl.textContent = pct + '%';
     pctEl.classList.add('show');
+    if (ringFill) ringFill.style.strokeDashoffset = circumference - (circumference * pct / 100);
   } else {
     pctEl.classList.remove('show');
+    if (ringFill) ringFill.style.strokeDashoffset = circumference;
   }
 }
 
@@ -566,6 +571,8 @@ function resetAll() {
   document.getElementById('progressBar').style.width = '0%';
   document.getElementById('btnProcess').classList.remove('sending');
   document.getElementById('processPct').classList.remove('show');
+  const rf = document.getElementById('fabRingFill');
+  if (rf) rf.style.strokeDashoffset = '150.796';
   document.getElementById('processOverlay').classList.remove('open');
   document.getElementById('progressText').textContent = 'Esperando inicio...';
   document.getElementById('progressBar').style.width = '0%';

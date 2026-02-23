@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <div class="app">
 
@@ -16,7 +18,7 @@
         <div class="logo-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
         <div class="logo-text">
           <span class="logo-name">Voltrex SMS</span>
-          <span class="logo-sub">plataforma de mensajería masiva</span>
+          <span class="logo-sub">bulk messaging platform</span>
         </div>
       </div>
 
@@ -50,11 +52,6 @@
         <i class="fa-solid fa-table-list"></i>
         <span id="contactsToggleLabel">Ver contactos</span>
       </button>
-      <button class="btn-contacts-toggle" id="btnProcess" onclick="toggleProcessModal()">
-        <i class="fa-solid fa-satellite-dish"></i>
-        <span>Proceso</span>
-        <span class="process-pct" id="processPct"></span>
-      </button>
     </header>
 
     <div class="panels">
@@ -74,17 +71,23 @@
           <div class="map-row">
             <span class="map-tag"><i class="fa-solid fa-phone"></i> Teléfono</span>
             <i class="fa-solid fa-arrow-right map-arrow"></i>
-            <select id="mapPhone"><option value="">Columna...</option></select>
+            <select id="mapPhone">
+              <option value="">Columna...</option>
+            </select>
           </div>
           <div class="map-row">
             <span class="map-tag"><i class="fa-solid fa-user"></i> Nombre</span>
             <i class="fa-solid fa-arrow-right map-arrow"></i>
-            <select id="mapName"><option value="">(Opcional)</option></select>
+            <select id="mapName">
+              <option value="">(Opcional)</option>
+            </select>
           </div>
           <div class="map-row">
             <span class="map-tag"><i class="fa-solid fa-tag"></i> Extra</span>
             <i class="fa-solid fa-arrow-right map-arrow"></i>
-            <select id="mapExtra"><option value="">(Opcional)</option></select>
+            <select id="mapExtra">
+              <option value="">(Opcional)</option>
+            </select>
           </div>
           <div class="file-alert" id="fileAlert"></div>
           <button class="btn-confirm" onclick="applyMapping()">
@@ -112,10 +115,19 @@
         <div class="msg-preview" id="msgPreview">
           <span class="muted">El mensaje aparecerá aquí...</span>
         </div>
+        <div class="copyright">
+          <p>Creado por <a href="https://github.com/MatFon73/VoltrexSMS" target="_blank">MatFon73 · v1.0</a></p>
+          <div class="social-links">
+            <a href="https://x.com/MatFon73" target="_blank" title="Twitter"><i
+                class="fa-brands fa-square-x-twitter"></i></a>
+            <a href="https://github.com/MatFon73" target="_blank" title="GitHub"><i
+                class="fa-brands fa-square-github"></i></a>
+          </div>
+        </div>
       </div>
 
       <div class="panel">
-        <div class="panel-title"><span class="step-num">3</span> Proveedor - Twilio</div>
+        <div class="panel-title"><span class="step-num">3</span> Proveedor & Opciones</div>
 
         <div class="provider-tabs">
           <button class="ptab active" data-provider="twilio" onclick="setProvider('twilio',this)">
@@ -256,7 +268,19 @@
       </div>
     </div>
 
+    <button class="fab-process" id="btnProcess" onclick="toggleProcessModal()" title="Ver proceso de envío">
+      <svg class="fab-ring" viewBox="0 0 56 56" fill="none">
+        <circle class="fab-ring-bg" cx="28" cy="28" r="24" />
+        <circle class="fab-ring-fill" id="fabRingFill" cx="28" cy="28" r="24" stroke-dasharray="150.796"
+          stroke-dashoffset="150.796" />
+      </svg>
+      <i class="fa-solid fa-satellite-dish fab-icon"></i>
+      <span class="fab-label">Proceso</span>
+      <span class="fab-pct" id="processPct"></span>
+    </button>
+
   </div>
   <script src="app.js"></script>
 </body>
+
 </html>

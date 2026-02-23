@@ -11,6 +11,7 @@ sms-masivo/
 ├── index.html      # Estructura HTML de la interfaz
 ├── styles.css      # Estilos y diseño visual
 ├── app.js          # Lógica de negocio y envíos
+├── favicon.svg     # icono de la web
 ├── LICENSE         # licencia del codigo
 └── README.md       # Este archivo
 ```

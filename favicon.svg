@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B9EF5"/>
+      <stop offset="100%" stop-color="#3D7FE8"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Fondo redondeado estilo iOS -->
+  <rect width="100" height="100" rx="22" ry="22" fill="url(#bg)"/>
+
+  <!-- Ondas izquierda -->
+  <path d="M34 38 Q26 50 34 62" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M27 31 Q15 50 27 69" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- Ondas derecha -->
+  <path d="M66 38 Q74 50 66 62" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <path d="M73 31 Q85 50 73 69" stroke="white" stroke-width="4" fill="none" stroke-linecap="round"/>
+
+  <!-- Punto central -->
+  <circle cx="50" cy="50" r="5" fill="white"/>
+
+  <!-- Palo hacia abajo -->
+  <line x1="50" y1="55" x2="50" y2="72" stroke="white" stroke-width="4" stroke-linecap="round"/>
+</svg>
