@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voltrex SMS</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon"><i class="fa-solid fa-tower-broadcast"></i></div>
+        <div class="logo-text">
+          <span class="logo-name">Voltrex SMS</span>
+          <span class="logo-sub">plataforma de mensajería masiva</span>
+        </div>
+      </div>
+
+      <div class="header-stats">
+        <div class="hstat">
+          <i class="fa-solid fa-users hstat-icon purple"></i>
+          <span class="hstat-val" id="stat-total">0</span>
+          <span class="hstat-lbl">contactos</span>
+        </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <i class="fa-solid fa-circle-check hstat-icon green"></i>
+          <span class="hstat-val green" id="stat-sent">0</span>
+          <span class="hstat-lbl">enviados</span>
+        </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <i class="fa-solid fa-circle-xmark hstat-icon red"></i>
+          <span class="hstat-val red" id="stat-error">0</span>
+          <span class="hstat-lbl">fallidos</span>
+        </div>
+        <div class="hstat-div"></div>
+        <div class="hstat">
+          <i class="fa-solid fa-font hstat-icon yellow"></i>
+          <span class="hstat-val yellow" id="stat-chars">0</span>
+          <span class="hstat-lbl">caracteres</span>
+        </div>
+      </div>
+
+      <button class="btn-contacts-toggle" id="btnContacts" onclick="toggleContacts()">
+        <i class="fa-solid fa-table-list"></i>
+        <span id="contactsToggleLabel">Ver contactos</span>
+      </button>
+      <button class="btn-contacts-toggle" id="btnProcess" onclick="toggleProcessModal()">
+        <i class="fa-solid fa-satellite-dish"></i>
+        <span>Proceso</span>
+        <span class="process-pct" id="processPct"></span>
+      </button>
+    </header>
+
+    <div class="panels">
+
+      <div class="panel">
+        <div class="panel-title"><span class="step-num">1</span> Cargar Excel</div>
+
+        <div class="upload-zone" id="uploadZone">
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv">
+          <i class="fa-solid fa-file-arrow-up upload-icon"></i>
+          <div class="upload-text">Arrastra tu archivo aquí</div>
+          <div class="upload-sub">o haz clic · .xlsx .xls .csv</div>
+        </div>
+
+        <div id="mappingSection" style="display:none; margin-top:12px;">
+          <div class="section-mini-title">Mapear columnas</div>
+          <div class="map-row">
+            <span class="map-tag"><i class="fa-solid fa-phone"></i> Teléfono</span>
+            <i class="fa-solid fa-arrow-right map-arrow"></i>
+            <select id="mapPhone"><option value="">Columna...</option></select>
+          </div>
+          <div class="map-row">
+            <span class="map-tag"><i class="fa-solid fa-user"></i> Nombre</span>
+            <i class="fa-solid fa-arrow-right map-arrow"></i>
+            <select id="mapName"><option value="">(Opcional)</option></select>
+          </div>
+          <div class="map-row">
+            <span class="map-tag"><i class="fa-solid fa-tag"></i> Extra</span>
+            <i class="fa-solid fa-arrow-right map-arrow"></i>
+            <select id="mapExtra"><option value="">(Opcional)</option></select>
+          </div>
+          <div class="file-alert" id="fileAlert"></div>
+          <button class="btn-confirm" onclick="applyMapping()">
+            <i class="fa-solid fa-check"></i> Confirmar mapeo
+          </button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="step-num">2</span> Redactar Mensaje</div>
+
+        <div class="textarea-wrap">
+          <textarea id="msgText" placeholder="Hola {{nombre}}, te informamos que..." oninput="updateChars()"></textarea>
+          <span class="char-count" id="charCount">0/160</span>
+        </div>
+
+        <div class="var-row">
+          <span class="section-mini-title" style="margin:0; align-self:center;">Variables:</span>
+          <button class="var-btn" onclick="insertVar('{{nombre}}')">{{nombre}}</button>
+          <button class="var-btn" onclick="insertVar('{{telefono}}')">{{tel}}</button>
+          <button class="var-btn" onclick="insertVar('{{extra}}')">{{extra}}</button>
+        </div>
+
+        <div class="section-mini-title">Vista previa:</div>
+        <div class="msg-preview" id="msgPreview">
+          <span class="muted">El mensaje aparecerá aquí...</span>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title"><span class="step-num">3</span> Proveedor - Twilio</div>
+
+        <div class="provider-tabs">
+          <button class="ptab active" data-provider="twilio" onclick="setProvider('twilio',this)">
+            <i class="fa-solid fa-message"></i> SMS
+          </button>
+          <button class="ptab" data-provider="whatsapp" onclick="setProvider('whatsapp',this)">
+            <i class="fa-brands fa-whatsapp"></i> WhatsApp
+          </button>
+          <button class="ptab" data-provider="demo" onclick="setProvider('demo',this)">
+            <i class="fa-solid fa-flask"></i> Demo
+          </button>
+        </div>
+
+        <div id="providerConfig">
+          <div class="field"><label>ACCOUNT SID</label>
+            <input type="text" id="cfg_sid" placeholder="ACxxxxxxxx..." oninput="saveCredsCache()">
+          </div>
+          <div class="field"><label>AUTH TOKEN</label>
+            <input type="text" id="cfg_token" placeholder="xxxxxxxx..." oninput="saveCredsCache()">
+          </div>
+          <div class="field"><label>NÚMERO REMITENTE</label>
+            <input type="text" id="cfg_from" placeholder="+15551234567" oninput="saveCredsCache()">
+          </div>
+          <div class="field"><label>DELAY ENTRE ENVÍOS (ms)</label>
+            <input type="text" id="cfg_delay" value="200" oninput="saveOptionsCache()">
+          </div>
+        </div>
+
+        <div id="demo-note" class="demo-note" style="display:none">
+          <i class="fa-solid fa-bolt"></i> Modo demo — sin credenciales reales
+        </div>
+
+        <div class="opts-divider"><span>Opciones avanzadas</span></div>
+        <div class="opts-grid">
+          <div class="field">
+            <label>REINTENTOS</label>
+            <select id="cfg_retry" onchange="saveOptionsCache()">
+              <option value="0">Sin reintentos</option>
+              <option value="1">1 reintento</option>
+              <option value="2" selected>2 reintentos</option>
+              <option value="3">3 reintentos</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>CODIFICACIÓN</label>
+            <select id="cfg_enc" onchange="saveOptionsCache()">
+              <option value="gsm7">GSM-7 (160 chars)</option>
+              <option value="ucs2">Unicode (70 chars)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="info-tip">
+          <i class="fa-solid fa-circle-info"></i>
+          Incluye prefijo de país: <code>+573001234567</code>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="contacts-overlay" id="contactsOverlay" onclick="closeContacts(event)">
+      <div class="contacts-modal">
+        <div class="contacts-modal-header">
+          <span><i class="fa-solid fa-table-list"></i> Contactos cargados</span>
+          <span id="previewCount" class="contacts-count"></span>
+          <button class="contacts-close" onclick="toggleContacts()"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="contacts-table-wrap" id="previewContainer">
+          <div class="empty-state">
+            <i class="fa-solid fa-inbox" style="font-size:32px; opacity:0.25; display:block; margin-bottom:10px;"></i>
+            Carga un archivo Excel para ver tus contactos
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="send-bar">
+      <div class="send-info">
+        <div class="send-title" id="sendSummary">Sin contactos cargados</div>
+        <div class="send-sub" id="sendSubtitle">Carga tu Excel y redacta el mensaje para comenzar</div>
+      </div>
+      <div class="send-actions">
+        <button class="btn-action" onclick="exportReport()" id="btnExport" style="display:none">
+          <i class="fa-solid fa-download"></i> Exportar
+        </button>
+        <button class="btn-action" onclick="resetAll()">
+          <i class="fa-solid fa-rotate"></i> Reiniciar
+        </button>
+        <button class="btn-send" id="btnSend" onclick="startSending()" disabled>
+          <i class="fa-solid fa-paper-plane"></i> Enviar
+        </button>
+      </div>
+    </div>
+
+    <div class="process-overlay" id="processOverlay" onclick="closeProcessModal(event)">
+      <div class="process-modal">
+        <div class="process-modal-header">
+          <div class="process-modal-title">
+            <i class="fa-solid fa-satellite-dish"></i> Proceso de envío
+          </div>
+          <div class="process-modal-actions">
+            <button class="btn-cancel" id="btnCancel" onclick="cancelSending()" style="display:none">
+              <i class="fa-solid fa-xmark"></i> Cancelar
+            </button>
+            <button class="contacts-close" onclick="toggleProcessModal()">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="process-stats-row">
+          <div class="pstat">
+            <div class="pstat-val" id="pstat-total">0</div>
+            <div class="pstat-lbl">Total</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val green" id="pstat-sent">0</div>
+            <div class="pstat-lbl">Enviados</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val red" id="pstat-error">0</div>
+            <div class="pstat-lbl">Fallidos</div>
+          </div>
+          <div class="pstat">
+            <div class="pstat-val yellow" id="pstat-remaining">0</div>
+            <div class="pstat-lbl">Pendientes</div>
+          </div>
+        </div>
+
+        <div class="process-progress">
+          <div class="prog-bg">
+            <div class="prog-fill" id="progressBar"></div>
+          </div>
+          <div class="prog-text" id="progressText">Esperando inicio...</div>
+        </div>
+
+        <div class="log-panel" id="logWrap"></div>
+      </div>
+    </div>
+
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
